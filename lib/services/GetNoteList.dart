@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:notepad/moudle/note_item.dart';
+import 'package:notepad/moudle/note_for_listing.dart';
 import 'package:http/http.dart' as http;
+import 'package:notepad/moudle/note_item.dart';
 import 'package:notepad/services/ApiResponse.dart';
 
 class GetNoteList {
@@ -27,27 +28,35 @@ class GetNoteList {
     getKey();
   }
 
-  Future<ApiResponse<List<NoteItem>>> getNoteList() async {
+  Future<ApiResponse<List<NoteForListing>>> getNoteList() async {
     return http.get(API + '/notes', headers: headers).then((data) {
       print(data);
       if (data.statusCode == 200) {
         final noteList = json.decode(data.body);
-        final notes = <NoteItem>[];
+        final notes = <NoteForListing>[];
         for (var item in noteList) {
-          final note = NoteItem(
-              item["noteID"],
-              item["noteTitle"],
-              DateTime.parse(item["createDateTime"]),
-              item["latestEditDateTime"] != null
-                  ? DateTime.parse(item["latestEditDateTime"])
-                  : null);
-          notes.add(note);
+          notes.add(NoteForListing.fromJson(item));
         }
 
-        return ApiResponse<List<NoteItem>>(data: notes);
+        return ApiResponse<List<NoteForListing>>(data: notes);
       }
-      return ApiResponse<List<NoteItem>>(error: true);
+      return ApiResponse<List<NoteForListing>>(error: true);
     }).catchError((_) =>
-        ApiResponse<List<NoteItem>>(error: true, message: "Error Get notes"));
+        ApiResponse<List<NoteForListing>>(error: true, message: "Error Get notes"));
+  }
+
+  Future<ApiResponse<NoteItem>> getNote(String noteId) async {
+      print("getting note" );
+    return http.get(API + '/notes/'+noteId, headers: headers).then((data) {
+      print(data);
+      if (data.statusCode == 200) {
+        print("The data is recived");
+        final item = json.decode(data.body);
+
+        return ApiResponse<NoteItem>(data: NoteItem.fromJson(item) , error: false);
+      }
+      return ApiResponse<NoteItem>(error: true);
+    }).catchError((_) =>
+        ApiResponse<NoteItem>(error: true, message: "Error Get notes"));
   }
 }

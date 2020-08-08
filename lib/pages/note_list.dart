@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:get_it/get_it.dart';
-import 'package:notepad/moudle/note_item.dart';
+import 'package:notepad/moudle/note_for_listing.dart';
 import 'package:notepad/pages/delete_alert.dart';
 import 'package:notepad/pages/note_modify.dart';
 import 'package:notepad/services/ApiResponse.dart';
@@ -12,7 +12,7 @@ class NoteList extends StatefulWidget {
 }
 
 class _NoteListState extends State<NoteList> {
-  ApiResponse<List<NoteItem>> _apiResponse;
+  ApiResponse<List<NoteForListing>> _apiResponse;
 
   GetNoteList get service => GetIt.I<GetNoteList>();
   bool _isLoading = false;
@@ -111,7 +111,7 @@ class _NoteListState extends State<NoteList> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) =>
-                              NoteModify(item: _apiResponse.data[index])));
+                              NoteModify(noteID: _apiResponse.data[index].noteID)));
                     },
                     title: Text(
                       _apiResponse.data[index].title,
