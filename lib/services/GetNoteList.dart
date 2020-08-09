@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:notepad/moudle/NoteForPost.dart';
 import 'package:notepad/moudle/note_for_listing.dart';
 import 'package:http/http.dart' as http;
 import 'package:notepad/moudle/note_item.dart';
@@ -10,17 +11,18 @@ class GetNoteList {
   static const API = "http://api.notes.programmingaddict.com";
   var headers = {
     "apiKey": "03f53b59-b30d-400b-82c2-595492e9f27d",
+    "Content-Type" : "application/json"
   };
 
   getKey() async {
-    print("request Sent");
-    var res = await http.get(API + "/apiKey");
-    print(res.statusCode);
-    this.key = json.decode(res.body)["apiKey"];
-    headers = {
-      "apiKey": "03f53b59-b30d-400b-82c2-595492e9f27d",
-    };
-    print("fuck");
+//    print("request Sent");
+//    var res = await http.get(API + "/apiKey");
+//    print(res.statusCode);
+//    this.key = json.decode(res.body)["apiKey"];
+////    headers = {
+////      "apiKey": "03f53b59-b30d-400b-82c2-595492e9f27d",
+////    };
+//    print("fuck");
 
   }
 
@@ -58,5 +60,18 @@ class GetNoteList {
       return ApiResponse<NoteItem>(error: true);
     }).catchError((_) =>
         ApiResponse<NoteItem>(error: true, message: "Error Get notes"));
+  }
+
+  Future<ApiResponse<bool>> createNote(NoteForPost item) async {
+      print("getting note" );
+
+    return http.post(API + '/notes', headers: headers , body: json.encode({"noteTitle":item.title , "noteContent":item.content})).then((data) {
+      print(data.statusCode);
+      if (data.statusCode == 201) {
+        return ApiResponse<bool>(data: true , error: false);
+      }
+      return ApiResponse<bool>(error: true);
+    }).catchError((_) =>
+        ApiResponse<bool>(error: true, message: "Error Get notes"));
   }
 }

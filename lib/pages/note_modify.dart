@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:notepad/moudle/NoteForPost.dart';
 import 'package:notepad/moudle/note_item.dart';
+import 'package:notepad/pages/note_list.dart';
 import 'package:notepad/services/GetNoteList.dart';
 
 class NoteModify extends StatefulWidget {
@@ -16,7 +18,7 @@ class NoteModify extends StatefulWidget {
 
 class _NoteModifyState extends State<NoteModify> {
   final service = GetIt.I<GetNoteList>();
-  bool _isLoading = true;
+  bool _isLoading = false;
   String errMassage;
   NoteItem noteItem;
 
@@ -27,23 +29,24 @@ class _NoteModifyState extends State<NoteModify> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    setState(() {
-      _isLoading = true;
-    });
-    service.getNote(widget.noteID).then((data) {
-      if (data.error) {
-        errMassage = data.message ?? "error has occurred";
-      }
+    if (widget.noteID != null) {
+      setState(() {
+        _isLoading = true;
+      });
+      service.getNote(widget.noteID).then((data) {
+        if (data.error) {
+          errMassage = data.message ?? "error has occurred";
+        }
         noteItem = data.data;
         _controler_title.text = noteItem.title;
         _contorler_body.text = noteItem.noteContent;
         print(_contorler_body.text);
 
-      setState(() {
-        _isLoading = false;
+        setState(() {
+          _isLoading = false;
+        });
       });
-    });
-
+    }
   }
 
   @override
@@ -80,8 +83,27 @@ class _NoteModifyState extends State<NoteModify> {
                       child: RaisedButton(
                         color: Colors.blue,
                         child: Text("Submit"),
-                        onPressed: () {
-                          Navigator.pop(context);
+                        onPressed: () async {
+                          final result = await service.createNote(NoteForPost(
+                              title: _controler_title.text,
+                              content: _contorler_body.text));
+                          final text = result.error
+                              ? "an error has occurred"
+                              : "note is created";
+                          showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                    title: Text("Done"),
+                                    content: Text(text),
+                                    actions: <Widget>[
+                                      RaisedButton(
+                                        child: Text("Ok"),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      )
+                                    ],
+                                  )).then((value) => Navigator.of(context).pop(MaterialPageRoute(builder: (_)=>NoteList())));
                         },
                       ),
                     )

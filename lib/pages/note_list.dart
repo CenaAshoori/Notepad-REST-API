@@ -42,12 +42,8 @@ class _NoteListState extends State<NoteList> {
         floatingActionButton: FloatingActionButton(
           child: IconButton(
             onPressed: () {
-              print(GetIt
-                  .I<GetNoteList>()
-                  .headers);
-              _fetchData();
-//            Navigator.of(context)
-//                .push(MaterialPageRoute(builder: (_) => NoteModify()));
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => NoteModify())).then((value) => _fetchData());
               print("float Btn is Pressed");
             },
             icon: Icon(Icons.add),
