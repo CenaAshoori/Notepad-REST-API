@@ -2,19 +2,19 @@ import "package:flutter/material.dart";
 import 'package:get_it/get_it.dart';
 import 'package:notepad/moudle/note_for_listing.dart';
 import 'package:notepad/pages/delete_alert.dart';
-import 'package:notepad/pages/note_modify.dart';
+import 'package:notepad/pages/NoteModifyView.dart';
 import 'package:notepad/services/ApiResponse.dart';
-import 'package:notepad/services/GetNoteList.dart';
+import 'package:notepad/services/NoteListService.dart';
 
-class NoteList extends StatefulWidget {
+class NoteListView extends StatefulWidget {
   @override
   _NoteListState createState() => _NoteListState();
 }
 
-class _NoteListState extends State<NoteList> {
+class _NoteListState extends State<NoteListView> {
   ApiResponse<List<NoteForListing>> _apiResponse;
 
-  GetNoteList get service => GetIt.I<GetNoteList>();
+  NoteListService get service => GetIt.I<NoteListService>();
   bool _isLoading = false;
 
   @override
@@ -42,9 +42,12 @@ class _NoteListState extends State<NoteList> {
         floatingActionButton: FloatingActionButton(
           child: IconButton(
             onPressed: () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => NoteModify())).then((value) => _fetchData());
-              print("float Btn is Pressed");
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => NoteModifyView()))
+                  .then((value) {
+                _fetchData();
+                print("float Btn is Pressed");
+              });
             },
             icon: Icon(Icons.add),
           ),
@@ -59,14 +62,15 @@ class _NoteListState extends State<NoteList> {
                 child: CircularProgressIndicator(),
               );
             } else if (_apiResponse.error != null) {
-              return Center(child: Text("an Error Has ucorrd"),);
+              return Center(
+                child: Text("an Error Has ucorrd"),
+              );
             }
             return ListView.separated(
-              separatorBuilder: (_, __) =>
-                  Divider(
-                    height: 2,
-                    color: Colors.green,
-                  ),
+              separatorBuilder: (_, __) => Divider(
+                height: 2,
+                color: Colors.green,
+              ),
               itemBuilder: (_, index) {
                 return Dismissible(
                   secondaryBackground: Container(
@@ -97,24 +101,27 @@ class _NoteListState extends State<NoteList> {
                       result = await showDialog(
                           context: context, builder: (_) => DeleteAlert());
                     } else if (direction == DismissDirection.endToStart) {
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (_) => NoteList()));
+//                      Navigator.of(context).push(
+//                          MaterialPageRoute(builder: (_) => NoteListView()));
                     }
                     return result;
                   },
-                  onDismissed: (direction) {},
+                  onDismissed: (direction) {
+                    service.deleteNote(_apiResponse.data[index].noteID);
+
+                  },
                   child: ListTile(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) =>
-                              NoteModify(noteID: _apiResponse.data[index].noteID)));
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(
+                              builder: (_) => NoteModifyView(
+                                  noteID: _apiResponse.data[index].noteID)))
+                          .then((value) => _fetchData());
                     },
                     title: Text(
                       _apiResponse.data[index].title,
                       style: TextStyle(
-                          fontSize: 16, color: Theme
-                          .of(context)
-                          .primaryColor),
+                          fontSize: 16, color: Theme.of(context).primaryColor),
                     ),
                     subtitle: Text(_apiResponse.data[index].formatDateTime()),
                   ),

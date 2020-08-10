@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:notepad/pages/note_list.dart';
-import 'package:notepad/pages/note_modify.dart';
-import 'package:notepad/services/GetNoteList.dart';
+import 'package:notepad/pages/NoteListView.dart';
+import 'package:notepad/pages/NoteModifyView.dart';
+import 'package:notepad/services/NoteListService.dart';
 
 void setuplocator () async{
-  GetIt.I.registerLazySingleton(() => GetNoteList());
+  GetIt.I.registerLazySingleton(() => NoteListService());
+  await GetIt.I<NoteListService>().getKey();
 }
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: NoteList(),
+      home: NoteListView(),
 //      home: NoteModify(),
     );
   }
