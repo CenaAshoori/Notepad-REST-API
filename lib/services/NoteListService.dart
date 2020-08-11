@@ -10,9 +10,13 @@ class NoteListService {
   String key;
   static const API = "http://api.notes.programmingaddict.com";
   var headers;
-
-  getKey() async {
-    print("request Sent");
+  setKeybyMemory (String key) {
+    this.headers = {
+      "apiKey": key,
+      "Content-Type": "application/json"
+    };
+  }
+  Future getKey() async {
     var res = await http.get(API + "/apiKey");
     print(res.statusCode);
     this.key = json.decode(res.body)["apiKey"];
@@ -20,7 +24,7 @@ class NoteListService {
       "apiKey": key,
       "Content-Type": "application/json"
     };
-    print("fuck");
+    return key;
   }
 
   NoteListService();
